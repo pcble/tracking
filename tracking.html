@@ -24,8 +24,8 @@
             
             <div class="tracking-info">
                 <p><strong>Order ID:</strong> <span id="order-id"></span></p>
-                <p><strong>Status:</strong> <span id="order-status" class="status-text"></span></p>
-                <p><strong>Estimated Delivery:</strong> <span id="delivery-date"></span></p>
+                <p><strong>Status:</strong> <span id="order-status" class="status-text">CONSIGNMENTS On HOLD for Airport Clearance</span></p>
+                <p><strong>Estimated Delivery:</strong> <span id="delivery-date">08/03/2025</span></p>
             </div>
 
             <div class="progress-container">
@@ -37,11 +37,11 @@
 
             <div class="tracking-details">
                 <h3>Package Information</h3>
-                <p><strong>Recipient:</strong> <span id="recipient"></span></p>
-                <p><strong>Shipping Address:</strong> <span id="shipping-address"></span></p>
-                <p><strong>Courier Service:</strong> <span id="courier"></span></p>
-                <p><strong>Weight:</strong> <span id="weight"></span></p>
-                <p><strong>Shipment Type:</strong> <span id="shipment-type"></span></p>
+                <p><strong>Recipient:</strong> <span id="recipient">ROCIO ARACELI QUERO</span></p>
+                <p><strong>Shipping Address:</strong> <span id="shipping-address">317 County Road 805A Cleburne, Texas 76031</span></p>
+                <p><strong>Courier Service:</strong> <span id="courier">MILES LOGISTICS</span></p>
+                <p><strong>Weight:</strong> <span id="weight">5K</span></p>
+                <p><strong>Shipment Type:</strong> <span id="shipment-type">Priority</span></p>
             </div>
 
             <!-- Live Tracking Map -->
@@ -52,8 +52,7 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         const trackingDatabase = {
-            "EA147185623US": { status: "CONSIGNMENTS On HOLD for Airport Clearance", deliveryDate: "March 08, 2025", location: "Chicago, IL", recipient: "ROCIO ARACELI QUERO", address: "317 County Road 805A Cleburne, Texas 76031", courier: "MILES LOGISTICS, weight: "2.5kg", type: "Priority" },
-            "LX987654321US": { status: "Out for Delivery", deliveryDate: "March 10, 2025", location: "Los Angeles, CA", recipient: "Jane Smith", address: "456 Elm St, CA", courier: "FedEx", weight: "3kg", type: "Standard" }
+            "EA147185623US": { status: "CONSIGNMENTS On HOLD for Airport Clearance", deliveryDate: "08/03/2025", location: "Chicago, IL", recipient: "ROCIO ARACELI QUERO", address: "317 County Road 805A Cleburne, Texas 76031", courier: "MILES LOGISTICS", weight: "5K", type: "Priority" }
         };
 
         function trackOrder() {
@@ -71,49 +70,10 @@
                 document.getElementById('courier').innerText = details.courier;
                 document.getElementById('weight').innerText = details.weight;
                 document.getElementById('shipment-type').innerText = details.type;
-
-                updateTrackingProgress(details.status);
-                updateMap(details.location);
             } else {
                 alert('Invalid Tracking ID! Please check and try again.');
             }
         }
-
-        function updateTrackingProgress(status) {
-            let steps = ["step-1", "step-2", "step-3", "step-4"];
-            steps.forEach(step => document.getElementById(step).classList.remove('active'));
-
-            if (status === "Shipped") document.getElementById("step-2").classList.add("active");
-            if (status === "Out for Delivery") document.getElementById("step-3").classList.add("active");
-            if (status === "Delivered") document.getElementById("step-4").classList.add("active");
-        }
-
-        function updateMap(location) {
-            let routeCoordinates = {
-                "Chicago, IL": [[40.7128, -74.0060], [41.8781, -87.6298], [34.0522, -118.2437]],
-                "Los Angeles, CA": [[37.7749, -122.4194], [36.1627, -86.7816], [34.0522, -118.2437]]
-            };
-
-            var map = L.map('map').setView([39.0997, -94.5786], 5);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(map);
-
-            let route = routeCoordinates[location] || routeCoordinates["Chicago, IL"];
-            let routeLine = L.polyline(route, { color: 'blue', weight: 5, opacity: 0.7, dashArray: '10, 10' }).addTo(map);
-            let packageMarker = L.marker(route[1], { icon: L.divIcon({ className: 'package-icon', html: '📦', iconSize: [24, 24] }) }).addTo(map);
-
-            let index = 1;
-            function movePackage() {
-                if (index < route.length) {
-                    packageMarker.setLatLng(route[index]);
-                    index++;
-                    setTimeout(movePackage, 2000);
-                }
-            }
-            movePackage();
-        }
     </script>
-
 </body>
 </html>
