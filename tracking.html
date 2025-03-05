@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Miles Logistics Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="css/tracking.css">
+</head>
+<body>
+
+    <div class="tracking-container">
+        <h1><i class="fas fa-map-marker-alt"></i> Package Tracker</h1>
+        <p>Enter your tracking number to receive real-time updates.</p>
+
+        <div class="tracking-input">
+            <input type="text" id="tracking-id" placeholder="Enter Tracking Number">
+            <button onclick="trackOrder()"><i class="fas fa-search"></i> Track</button>
+        </div>
+
+        <div class="tracking-status" id="tracking-status" style="display: none;">
+            <h2><i class="fas fa-box"></i> Tracking Details</h2>
+            
+            <div class="tracking-info">
+                <p><strong>Order ID:</strong> <span id="order-id"></span></p>
+                <p><strong>Status:</strong> <span id="order-status" class="status-text"></span></p>
+                <p><strong>Estimated Delivery:</strong> <span id="delivery-date"></span></p>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-step active" id="step-1"><i class="fas fa-box"></i> Order Placed</div>
+                <div class="progress-step" id="step-2"><i class="fas fa-shipping-fast"></i> Shipped</div>
+                <div class="progress-step" id="step-3"><i class="fas fa-truck"></i> Out for Delivery</div>
+                <div class="progress-step" id="step-4"><i class="fas fa-check-circle"></i> Delivered</div>
+            </div>
+
+            <div class="tracking-details">
+                <h3>Package Information</h3>
+                <p><strong>Recipient:</strong> <span id="recipient"></span></p>
+                <p><strong>Shipping Address:</strong> <span id="shipping-address"></span></p>
+                <p><strong>Courier Service:</strong> <span id="courier"></span></p>
+                <p><strong>Weight:</strong> <span id="weight"></span></p>
+                <p><strong>Shipment Type:</strong> <span id="shipment-type"></span></p>
+            </div>
+
+            <!-- Live Tracking Map -->
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        const trackingDatabase = {
+            "EA147185623US": { status: "Shipped", deliveryDate: "March 12, 2025", location: "Chicago, IL", recipient: "John Doe", address: "123 Main St, NY", courier: "DHL Express", weight: "2.5kg", type: "Priority" },
+            "LX987654321US": { status: "Out for Delivery", deliveryDate: "March 10, 2025", location: "Los Angeles, CA", recipient: "Jane Smith", address: "456 Elm St, CA", courier: "FedEx", weight: "3kg", type: "Standard" }
+        };
+
+        function trackOrder() {
+            let trackingId = document.getElementById('tracking-id').value;
+
+            if (trackingDatabase[trackingId]) {
+                let details = trackingDatabase[trackingId];
+
+                document.getElementById('tracking-status').style.display = 'block';
+                document.getElementById('order-id').innerText = trackingId;
+                document.getElementById('order-status').innerText = details.status;
+                document.getElementById('delivery-date').innerText = details.deliveryDate;
+                document.getElementById('recipient').innerText = details.recipient;
+                document.getElementById('shipping-address').innerText = details.address;
+                document.getElementById('courier').innerText = details.courier;
+                document.getElementById('weight').innerText = details.weight;
+                document.getElementById('shipment-type').innerText = details.type;
+
+                updateTrackingProgress(details.status);
+                updateMap(details.location);
+            } else {
+                alert('Invalid Tracking ID! Please check and try again.');
+            }
+        }
+
+        function updateTrackingProgress(status) {
+            let steps = ["step-1", "step-2", "step-3", "step-4"];
+            steps.forEach(step => document.getElementById(step).classList.remove('active'));
+
+            if (status === "Shipped") document.getElementById("step-2").classList.add("active");
+            if (status === "Out for Delivery") document.getElementById("step-3").classList.add("active");
+            if (status === "Delivered") document.getElementById("step-4").classList.add("active");
+        }
+
+        function updateMap(location) {
+            let routeCoordinates = {
+                "Chicago, IL": [[40.7128, -74.0060], [41.8781, -87.6298], [34.0522, -118.2437]],
+                "Los Angeles, CA": [[37.7749, -122.4194], [36.1627, -86.7816], [34.0522, -118.2437]]
+            };
+
+            var map = L.map('map').setView([39.0997, -94.5786], 5);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            let route = routeCoordinates[location] || routeCoordinates["Chicago, IL"];
+            let routeLine = L.polyline(route, { color: 'blue', weight: 5, opacity: 0.7, dashArray: '10, 10' }).addTo(map);
+            let packageMarker = L.marker(route[1], { icon: L.divIcon({ className: 'package-icon', html: '📦', iconSize: [24, 24] }) }).addTo(map);
+
+            let index = 1;
+            function movePackage() {
+                if (index < route.length) {
+                    packageMarker.setLatLng(route[index]);
+                    index++;
+                    setTimeout(movePackage, 2000);
+                }
+            }
+            movePackage();
+        }
+    </script>
+
+</body>
+</html>
