@@ -25,7 +25,7 @@
             <div class="tracking-info">
                 <p><strong>Order ID:</strong> <span id="order-id"></span></p>
                 <p><strong>Status:</strong> <span id="order-status" class="status-text">CONSIGNMENTS On HOLD for Airport Clearance</span></p>
-                <p><strong>Estimated Delivery:</strong> <span id="delivery-date">08/03/2025</span></p>
+                <p><strong>Estimated Delivery:</strong> <span id="delivery-date">20/03/2025</span></p>
             </div>
 
             <div class="progress-container">
@@ -37,22 +37,31 @@
 
             <div class="tracking-details">
                 <h3>Package Information</h3>
-                <p><strong>Recipient:</strong> <span id="recipient">ROCIO ARACELI QUERO</span></p>
-                <p><strong>Shipping Address:</strong> <span id="shipping-address">317 County Road 805A Cleburne, Texas 76031</span></p>
+                <p><strong>Recipient:</strong> <span id="recipient">MARINA DOBRE</span></p>
+                <p><strong>Shipping Address:</strong> <span id="shipping-address">THE USA EMBASSY MADRID, Calle De Serrano, 75 28006</span></p>
                 <p><strong>Courier Service:</strong> <span id="courier">MILES LOGISTICS</span></p>
                 <p><strong>Weight:</strong> <span id="weight">5kg</span></p>
                 <p><strong>Shipment Type:</strong> <span id="shipment-type">Priority</span></p>
             </div>
 
             <!-- Live Tracking Map -->
-            <div id="map"></div>
+            <div id="map" style="height: 400px;"></div>
         </div>
     </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         const trackingDatabase = {
-            "EA147185623US": { status: "CONSIGNMENTS On HOLD for Airport Clearance", deliveryDate: "08/03/2025", location: "Chicago, IL", recipient: "ROCIO ARACELI QUERO", address: "317 County Road 805A Cleburne, Texas 76031", courier: "MILES LOGISTICS", weight: "5kg", type: "Priority" }
+            "EA147185623US": { 
+                status: "CONSIGNMENTS On HOLD for Airport Clearance", 
+                deliveryDate: "20/03/2025", 
+                location: "Madrid, Spain", 
+                recipient: "MARINA DOBRE", 
+                address: "THE USA EMBASSY MADRID, Calle De Serrano, 75 28006", 
+                courier: "MILES LOGISTICS", 
+                weight: "5kg", 
+                type: "Priority" 
+            }
         };
 
         function trackOrder() {
@@ -70,6 +79,16 @@
                 document.getElementById('courier').innerText = details.courier;
                 document.getElementById('weight').innerText = details.weight;
                 document.getElementById('shipment-type').innerText = details.type;
+
+                // Initialize Map
+                let map = L.map('map').setView([40.435, -3.687], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map);
+
+                L.marker([40.435, -3.687]).addTo(map)
+                    .bindPopup(`<b>${details.recipient}</b><br>${details.address}`)
+                    .openPopup();
             } else {
                 alert('Invalid Tracking ID! Please check and try again.');
             }
